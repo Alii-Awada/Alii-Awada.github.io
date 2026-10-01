@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ali Awada — AI Engineer · Generative AI</title>
+    <meta name="description"
+        content="Portfolio of Ali Awada, an AI engineer (M.Eng., Concordia University) specialized in generative AI solutions: LLM-based applications, AI workflow automation with Claude, MCP and n8n, and transformer models for edge devices." />
+    <meta name="author" content="Ali Awada" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Ali Awada — AI Engineer · Generative AI" />
+    <meta property="og:description"
+        content="AI engineer specialized in generative AI solutions, from LLM automations to transformers on the edge. Always open to collaborating!" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230284c7'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='16' text-anchor='middle' fill='white'%3EA_%3C/text%3E%3C/svg%3E" />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg: #ffffff;
+            /* white */
+            --bg-2: #f1f4f7;
+            /* light gray */
+            --card: #f8fafc;
+            --line: #e2e8f0;
+            --text: #1e293b;
+            /* charcoal gray */
+            --muted: #64748b;
+            /* slate gray */
+            --accent: #0284c7;
+            /* sky blue */
+            --accent-2: #38bdf8;
+            /* light sky blue */
+            --warn: #0369a1;
+            /* deep sky for pipeline steps */
+            --radius: 14px;
+            --mono: "JetBrains Mono", ui-monospace, monospace;
+            --sans: "Space Grotesk", system-ui, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* subtle dotted grid background */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(var(--line) 1px, transparent 1px);
+            background-size: 28px 28px;
+            -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 30%, transparent 75%);
+            mask-image: radial-gradient(ellipse at 50% 0%, #000 30%, transparent 75%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* soft sky-blue glow at the top */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 50% at 70% -10%, rgba(56, 189, 248, .18), transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        a:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        .lead b,
+        .project p b {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .tl-org a {
+            color: var(--accent);
+        }
+
+        .tl-org a:hover {
+            text-decoration: underline;
+        }
+
+        .p-note {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .project .p-top {
+            gap: 6px 14px;
+            flex-wrap: wrap;
+        }
+
+        .p-links a,
+        .p-note {
+            white-space: nowrap;
+        }
+
+        .wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .mono {
+            font-family: var(--mono);
+        }
+
+        /* ---------- NAV ---------- */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, .82);
+            border-bottom: 1px solid var(--line);
+        }
+
+        nav .wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .logo {
+            font-family: var(--mono);
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .nav-cta {
+            font-size: 13px;
+            font-family: var(--mono);
+            padding: 8px 14px;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            border-radius: 999px;
+            transition: .2s;
+        }
+
+        .nav-cta:hover {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .burger {
+            display: none;
+            background: none;
+            border: 0;
+            color: var(--text);
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        /* ---------- HERO ---------- */
+        .hero {
+            padding: 90px 0 70px;
+            display: grid;
+            grid-template-columns: 1.1fr .9fr;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--mono);
+            font-size: 13px;
+            padding: 6px 14px 6px 10px;
+            border-radius: 999px;
+            background: rgba(56, 189, 248, .08);
+            border: 1px solid rgba(56, 189, 248, .35);
+            color: var(--accent);
+        }
+
+        .pulse {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--accent);
+            position: relative;
+        }
+
+        .pulse::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: ping 1.6s infinite;
+        }
+
+        @keyframes ping {
+            to {
+                transform: scale(2.6);
+                opacity: 0;
+            }
+        }
+
+        h1 {
+            font-size: clamp(38px, 6vw, 64px);
+            line-height: 1.05;
+            margin: 22px 0 18px;
+            letter-spacing: -1.5px;
+        }
+
+        h1 .grad {
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .lead {
+            color: var(--muted);
+            font-size: 18px;
+            max-width: 540px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 14px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 13px 22px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: .2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -10px var(--accent);
+        }
+
+        .btn-ghost {
+            border: 1px solid var(--line);
+            background: var(--card);
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--muted);
+        }
+
+        .meta {
+            display: flex;
+            gap: 22px;
+            margin-top: 34px;
+            font-size: 14px;
+            color: var(--muted);
+            flex-wrap: wrap;
+        }
+
+        .meta b {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* agent trace terminal */
+        .terminal {
+            background: #2a323d;
+            border: 1px solid #3b4553;
+            border-radius: var(--radius);
+            box-shadow: 0 30px 70px -30px rgba(2, 132, 199, .45);
+            overflow: hidden;
+            color: #e5e9ef;
+        }
+
+        .term-bar {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #3b4553;
+            background: #323b47;
+        }
+
+        .term-bar i {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: #2c3242;
+        }
+
+        .term-bar i:nth-child(1) {
+            background: #ff5f57
+        }
+
+        .term-bar i:nth-child(2) {
+            background: #febc2e
+        }
+
+        .term-bar i:nth-child(3) {
+            background: #28c840
+        }
+
+        .term-bar span {
+            margin-left: 10px;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: #aab4c2;
+        }
+
+        .term-body {
+            font-family: var(--mono);
+            font-size: 13px;
+            padding: 18px;
+            min-height: 300px;
+            white-space: pre-wrap;
+        }
+
+        .t-thought {
+            color: #7dd3fc;
+        }
+
+        .t-action {
+            color: #e0f2fe;
+        }
+
+        .t-obs {
+            color: #9aa5b4;
+        }
+
+        .t-final {
+            color: #38bdf8;
+            font-weight: 500;
+        }
+
+        .caret {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background: #38bdf8;
+            vertical-align: -2px;
+            animation: blink 1s steps(1) infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* ---------- SECTIONS ---------- */
+        section {
+            padding: 80px 0;
+        }
+
+        .sec-head {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            margin-bottom: 40px;
+        }
+
+        .sec-head .num {
+            font-family: var(--mono);
+            color: var(--accent);
+            font-size: 14px;
+        }
+
+        .sec-head h2 {
+            font-size: 32px;
+            letter-spacing: -.5px;
+        }
+
+        .sec-head .rule {
+            flex: 1;
+            height: 1px;
+            background: var(--line);
+        }
+
+        /* about */
+        .about {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 40px;
+        }
+
+        .about p {
+            color: var(--muted);
+            margin-bottom: 16px;
+            font-size: 17px;
+        }
+
+        .about p b {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .looking {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .looking h3 {
+            margin-bottom: 0 !important;
+        }
+
+        .glance {
+            border-top: 1px dashed var(--line);
+            padding-top: 20px;
+        }
+
+        .glance-title {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 14px;
+        }
+
+        .quick-links {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .q-link {
+            width: 46px;
+            height: 46px;
+            display: grid;
+            place-items: center;
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            color: var(--accent);
+            transition: .2s;
+        }
+
+        .q-link:hover {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: var(--bg);
+            transform: translateY(-2px);
+        }
+
+        .q-link svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .q-cv {
+            margin-left: auto;
+            padding: 11px 18px;
+            font-size: 14px;
+        }
+
+        .looking-actions {
+            margin-top: auto;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .looking-actions .btn {
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 420px) {
+            .q-cv {
+                margin-left: 0;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .looking h3 {
+            font-size: 16px;
+            margin-bottom: 14px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .kv {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px 16px;
+            font-size: 14px;
+        }
+
+        .kv dt {
+            color: var(--muted);
+            font-family: var(--mono);
+            font-size: 12px;
+            padding-top: 2px;
+        }
+
+        .kv dd {
+            color: var(--text);
+        }
+
+        .yes {
+            color: var(--accent);
+        }
+
+        /* skills */
+        .skills {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        .skill-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 22px;
+            transition: .25s;
+        }
+
+        .skill-card:hover {
+            border-color: var(--accent-2);
+            transform: translateY(-3px);
+        }
+
+        .skill-card h3 {
+            font-size: 15px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .skill-card h3 .ico {
+            font-family: var(--mono);
+            color: var(--accent);
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            font-family: var(--mono);
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            background: var(--bg-2);
+            border: 1px solid var(--line);
+            color: var(--text);
+        }
+
+        .tag.core {
+            border-color: rgba(56, 189, 248, .4);
+            color: var(--accent);
+        }
+
+        /* projects */
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 22px;
+        }
+
+        .project {
+            position: relative;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 26px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            overflow: hidden;
+            transition: .25s;
+        }
+
+        .project::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            opacity: 0;
+            transition: .25s;
+        }
+
+        .project:hover {
+            transform: translateY(-4px);
+            border-color: #cbd5e1;
+            box-shadow: 0 18px 40px -24px rgba(2, 132, 199, .35);
+        }
+
+        .project:hover::before {
+            opacity: 1;
+        }
+
+        .p-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .p-label {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--accent);
+        }
+
+        .p-links {
+            display: flex;
+            gap: 14px;
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .p-links a:hover {
+            color: var(--accent);
+        }
+
+        .project h3 {
+            font-size: 21px;
+        }
+
+        .project p {
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .flow {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--muted);
+            background: var(--bg-2);
+            border: 1px dashed var(--line);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .flow b {
+            color: var(--warn);
+            font-weight: 400;
+        }
+
+        .project .tags {
+            margin-top: auto;
+        }
+
+        /* timeline */
+        .timeline {
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: 6px;
+            top: 6px;
+            bottom: 6px;
+            width: 2px;
+            background: var(--line);
+        }
+
+        .tl-item {
+            position: relative;
+            margin-bottom: 36px;
+        }
+
+        .tl-item::before {
+            content: "";
+            position: absolute;
+            left: -28px;
+            top: 6px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 2px solid var(--accent);
+        }
+
+        .tl-date {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--accent);
+        }
+
+        .tl-item h3 {
+            font-size: 19px;
+            margin: 4px 0 2px;
+        }
+
+        .tl-org {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .tl-item ul {
+            color: var(--muted);
+            font-size: 15px;
+            padding-left: 18px;
+        }
+
+        .tl-item li {
+            margin-bottom: 4px;
+        }
+
+        .resume-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 40px;
+        }
+
+        .col-title {
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 22px;
+        }
+
+        .cert {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+        }
+
+        .cert b {
+            display: block;
+            font-weight: 500;
+        }
+
+        .cert span {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* contact */
+        .contact-box {
+            background: linear-gradient(135deg, rgba(56, 189, 248, .08), rgba(14, 165, 233, .1));
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            padding: 56px 40px;
+            text-align: center;
+        }
+
+        .contact-box h2 {
+            font-size: clamp(28px, 4vw, 42px);
+            letter-spacing: -1px;
+            margin: 14px 0 12px;
+        }
+
+        .contact-box>p {
+            color: var(--muted);
+            max-width: 560px;
+            margin: 0 auto 36px;
+        }
+
+        .contacts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 14px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .c-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-align: left;
+            background: var(--bg-2);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 16px;
+            transition: .2s;
+        }
+
+        .c-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .c-ico {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            background: var(--card);
+            border: 1px solid var(--line);
+            color: var(--accent);
+        }
+
+        .c-ico svg {
+            width: 19px;
+            height: 19px;
+        }
+
+        .c-card small {
+            display: block;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .c-card span {
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        .copy-note {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--accent);
+            height: 18px;
+            margin-top: 18px;
+        }
+
+        footer {
+            border-top: 1px solid var(--line);
+            padding: 28px 0;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        footer .wrap {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* animated neural-network background */
+        #neural {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: .9;
+        }
+
+        /* reveal on scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: .7s cubic-bezier(.2, .7, .2, 1);
+        }
+
+        .reveal.in {
+            opacity: 1;
+            transform: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
+
+            .pulse::after,
+            .caret {
+                animation: none;
+            }
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 900px) {
+
+            .hero,
+            .about,
+            .resume-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding-top: 56px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .wrap {
+                padding: 0 16px;
+            }
+
+            .nav-links,
+            .nav-cta {
+                display: none;
+            }
+
+            .burger {
+                display: block;
+            }
+
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+                gap: 18px;
+                position: absolute;
+                top: 64px;
+                left: 0;
+                right: 0;
+                padding: 22px 16px;
+                background: var(--bg-2);
+                border-bottom: 1px solid var(--line);
+            }
+
+            section {
+                padding: 60px 0;
+            }
+
+            .projects {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-box {
+                padding: 40px 18px;
+            }
+
+            .term-body {
+                font-size: 12px;
+                min-height: 260px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="neural" aria-hidden="true"></canvas>
+
+    <!-- ================= NAV ================= -->
+    <nav>
+        <div class="wrap">
+            <a href="#top" class="logo">~/ali-awada<span>_</span></a>
+            <div class="nav-links" id="navLinks">
+                <a href="#about">About</a>
+                <a href="#skills">Stack</a>
+                <a href="#projects">Projects</a>
+                <a href="lightweight-hart.html">Case study</a>
+                <a href="#resume">Resume</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <a href="#contact" class="nav-cta">hire_me()</a>
+            <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"
+                aria-controls="navLinks">☰</button>
+        </div>
+    </nav>
+
+    <!-- ================= HERO ================= -->
+    <header id="top" class="wrap hero">
+        <div class="reveal">
+            <div class="status"><span class="pulse"></span> status: open_to_work — AI Engineer</div>
+            <h1>Hi, I'm Ali Awada.<br />I build <span class="grad">AI solutions</span> that think, act &amp; ship.</h1>
+            <p class="lead">
+                AI Engineer focused on <b>generative AI and agentic systems</b>, building LLM agents that plan, use
+                tools, manage context, and adapt to failures. Experienced with Python, LangChain, and LangGraph, with a
+                focus on developing <b>reliable, production-ready AI applications</b>. I enjoy turning research ideas
+                and messy data into responsible applications.
+            </p>
+            <div class="hero-actions">
+                <a href="#projects" class="btn btn-primary">View my work →</a>
+                <a href="Ali Awada's Resume.pdf" class="btn btn-ghost" download>↓ Download CV</a>
+            </div>
+            <div class="meta">
+                <div>📍 <b>Montréal, Canada | Beirut, Lebanon</b> · Open to remote</div>
+                <div>⚡ <b>Available</b> immediately</div>
+            </div>
+        </div>
+
+        <div class="terminal reveal" aria-label="Animated example of an agent reasoning trace">
+            <div class="term-bar"><i></i><i></i><i></i><span>agent.run("hire an AI engineer")</span></div>
+            <div class="term-body" id="trace"></div>
+        </div>
+    </header>
+
+    <!-- ================= ABOUT ================= -->
+    <section id="about">
+        <div class="wrap">
+            <div class="sec-head reveal"><span class="num">01.</span>
+                <h2>About me</h2><span class="rule"></span>
+            </div>
+            <div class="about">
+                <div class="reveal">
+                    <p>
+                        I'm a <b>Computer Engineer</b> (M.Eng., Concordia University) specializing in
+                        <b>Artificial Intelligence and Software Engineering</b> with experience building LLM-powered
+                        applications, AI agents, and intelligent backend systems.
+                    </p>
+                    <p>
+                        My work spans <b>AI agents, retrieval-augmented generation (RAG), multi-agent systems, model
+                            evaluation, and backend development</b>. I have also conducted research on
+                        <b>transformer-based models for human activity recognition</b> and developed Django and
+                        PostgreSQL applications with
+                        integrated AI capabilities.
+                    </p>
+                    <p>
+                        I’m focused on engineering <b>reliable, secure, and production-ready AI systems</b>, with
+                        particular attention to structured outputs, guardrails, observability, evaluation, and
+                        responsible AI practices. I’m seeking opportunities to contribute to impactful products, take
+                        ownership of technical features, and continue developing as an AI engineer.
+                    </p>
+                </div>
+                <aside class="looking reveal">
+                    <h3><span class="pulse"></span> What I'm looking for</h3>
+                    <dl class="kv">
+                        <dt>role</dt>
+                        <dd>AI / LLM Engineer</dd>
+                        <dt>focus</dt>
+                        <dd>Generative AI · AI agents · Automation</dd>
+                        <dt>strengths</dt>
+                        <dd>LLM Applications · Deep Learning · Backend</dd>
+                        <dt>type</dt>
+                        <dd>Full-time</dd>
+                        <dt>work</dt>
+                        <dd>Remote · Hybrid · On-site</dd>
+                        <dt>location</dt>
+                        <dd>Montréal, Canada | Beirut, Lebanon</dd>
+                        <dt>start</dt>
+                        <dd class="yes">Immediately</dd>
+                    </dl>
+                    <div class="glance">
+                        <div class="glance-title">Contact &amp; links</div>
+                        <div class="quick-links">
+                            <a class="q-link" aria-label="Email: aliawada438@gmail.com"
+                                title="Email: aliawada438@gmail.com" href="mailto:aliawada438@gmail.com"><svg
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                                    <path d="m3 7 9 6 9-6" />
+                                </svg></a>
+                            <a class="q-link" aria-label="Phone: +1 514 945-8550" title="Phone: +1 514 945-8550"
+                                href="tel:+15149458550"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path
+                                        d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z" />
+                                </svg></a>
+                            <a class="q-link" aria-label="LinkedIn: /in/aliiawada" title="LinkedIn: /in/aliiawada"
+                                href="https://www.linkedin.com/in/aliiawada" target="_blank" rel="noopener"><svg
+                                    viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05C20.6 8.65 21 11.2 21 14.5V21h-4v-5.8c0-1.4 0-3.2-1.95-3.2S12.8 13.5 12.8 15.1V21H9z" />
+                                </svg></a>
+                            <a class="q-link" aria-label="GitHub: @Alii-Awada" title="GitHub: @Alii-Awada"
+                                href="https://github.com/Alii-Awada" target="_blank" rel="noopener"><svg
+                                    viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.1-1.47-1.1-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z" />
+                                </svg></a>
+                            <a href="Ali Awada's Resume.pdf" class="btn btn-primary q-cv" download>↓ Download CV</a>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= SKILLS ================= -->
+    <section id="skills">
+        <div class="wrap">
+            <div class="sec-head reveal"><span class="num">02.</span>
+                <h2>Tech stack</h2><span class="rule"></span>
+            </div>
+            <div class="skills">
+                <div class="skill-card reveal">
+                    <h3><span class="ico">⌬</span> LLMs &amp; generative AI</h3>
+                    <div class="tags"><span class="tag core">LLMs</span><span class="tag core">Generative AI</span><span
+                            class="tag">AI agents</span><span class="tag">Agentic AI</span><span class="tag">Prompt
+                            engineering</span><span class="tag">Conversational AI</span><span class="tag">NLP</span>
+                    </div>
+                </div>
+                <div class="skill-card reveal">
+                    <h3><span class="ico">&gt;_</span> AI automation</h3>
+                    <div class="tags"><span class="tag core">Claude AI</span><span class="tag core">MCP</span><span
+                            class="tag core">n8n</span><span class="tag">API integration</span><span
+                            class="tag">VirusTotal API</span><span class="tag">AbuseIPDB API</span></div>
+                </div>
+                <div class="skill-card reveal">
+                    <h3><span class="ico">∑</span> Deep learning &amp; ML</h3>
+                    <div class="tags"><span class="tag core">Transformers</span><span class="tag core">TensorFlow /
+                            Keras</span><span class="tag">TensorFlow Lite</span><span class="tag">Model
+                            compression</span><span class="tag">Knowledge distillation</span><span
+                            class="tag">PyTorch</span><span class="tag">scikit-learn</span><span
+                            class="tag">Jupyter</span></div>
+                </div>
+                <div class="skill-card reveal">
+                    <h3><span class="ico">{ }</span> Languages</h3>
+                    <div class="tags"><span class="tag core">Python</span><span class="tag">Java</span><span
+                            class="tag">C/C++</span><span class="tag">JavaScript</span><span class="tag">SQL</span><span
+                            class="tag">PHP</span><span class="tag">Bash</span></div>
+                </div>
+                <div class="skill-card reveal">
+                    <h3><span class="ico">⚙</span> Backend &amp; web</h3>
+                    <div class="tags"><span class="tag core">Django</span><span class="tag">REST APIs</span><span
+                            class="tag">PostgreSQL</span><span class="tag">React</span><span class="tag">OOP</span><span
+                            class="tag">Design patterns</span></div>
+                </div>
+                <div class="skill-card reveal">
+                    <h3><span class="ico">◎</span> Tooling &amp; cloud</h3>
+                    <div class="tags"><span class="tag core">Git / GitHub</span><span class="tag">VS Code</span><span
+                            class="tag">Linux / Unix</span><span class="tag">Maven</span><span
+                            class="tag">JUnit</span><span class="tag">AWS · Azure · GCP (fundamentals)</span><span
+                            class="tag">CI/CD</span><span class="tag">MLOps concepts</span></div>
+                </div>
+                <div class="skill-card reveal">
+                    <h3><span class="ico">✓</span> Responsible AI</h3>
+                    <div class="tags"><span class="tag core">Human-in-the-loop</span><span class="tag">AI output
+                            validation</span><span class="tag">Privacy &amp; security</span><span class="tag">AI
+                            ethics</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= PROJECTS ================= -->
+    <section id="projects">
+        <div class="wrap">
+            <div class="sec-head reveal"><span class="num">03.</span>
+                <h2>Selected projects</h2><span class="rule"></span>
+            </div>
+            <div class="projects">
+
+                <article class="project reveal">
+                    <div class="p-top">
+                        <span class="p-label">// edge ML · transformers</span>
+                        <div class="p-links"><a href="https://github.com/Alii-Awada/Lightweight-HART-Transformer"
+                                target="_blank" rel="noopener">code ↗</a><a href="lightweight-hart.html">case study
+                                →</a></div>
+                    </div>
+                    <h3>Lightweight HART: Activity Recognition on the Edge</h3>
+                    <p>A transformer that classifies 1.28 s of wrist IMU data into 9 activities and maps them to WHO
+                        intensity levels. Tuned from 84.6% to <b>88.5% weighted F1</b>, then compressed with knowledge
+                        distillation (1.18× smaller), targeting an NVIDIA Jetson Orin Nano.</p>
+                    <div class="flow">preprocess → <b>train</b> → distill → track → <b>TFLite export</b> → Jetson</div>
+                    <div class="tags"><span class="tag core">TensorFlow</span><span class="tag">TFLite</span><span
+                            class="tag">Knowledge distillation</span><span class="tag">PAMAP2</span></div>
+                </article>
+
+                <article class="project reveal">
+                    <div class="p-top">
+                        <span class="p-label">// LLM · security automation</span>
+                        <div class="p-links"><a href="https://github.com/Alii-Awada/Spam-Message-Detector"
+                                target="_blank" rel="noopener">code ↗</a><span class="p-note">independent project</span>
+                        </div>
+                    </div>
+                    <h3>Spam Message Detector</h3>
+                    <p>An interactive web app that flags spam SMS messages in real time, tells you how confident it is,
+                        and shows which words drove the decision.</p>
+                    <div class="flow">Raw SMS → clean & Dedupe → <b>TF-IDF vectors</b> → <b>Logistic Regression</b> →
+                        Spam/Ham + probability</div>
+                    <div class="tags"><span class="tag core">scikit-learn</span><span class="tag core">Logistic
+                            Regression</span><span class="tag">TF-IDF</span><span class="tag">Streamlit</span>
+                    </div>
+                </article>
+
+                <!--<article class="project reveal">
+                    <div class="p-top">
+                        <span class="p-label">// threat intelligence · APIs</span>
+                        <div class="p-links"><span class="p-note">independent project</span></div>
+                    </div>
+                    <h3>IP Reputation Checker</h3>
+                    <p>Automates IP reputation analysis by querying the VirusTotal and AbuseIPDB threat-intelligence
+                        APIs and combining their results into one report.</p>
+                    <div class="flow">IP → <b>VirusTotal</b> + <b>AbuseIPDB</b> → merge → reputation report</div>
+                    <div class="tags"><span class="tag core">n8n</span><span class="tag">VirusTotal API</span><span
+                            class="tag">AbuseIPDB API</span><span class="tag">REST APIs</span></div>
+                </article> -->
+
+                <article class="project reveal">
+                    <div class="p-top">
+                        <span class="p-label">// backend · Django</span>
+                        <div class="p-links"><span class="p-note">Concordia University</span></div>
+                    </div>
+                    <h3>Secure Backend Web Application</h3>
+                    <p>A Django backend with a PostgreSQL relational database, an integrated AI chatbot, and
+                        version-controlled deployment, built in a multidisciplinary team.</p>
+                    <div class="flow">request → <b>Django</b> → PostgreSQL · AI chatbot → response</div>
+                    <div class="tags"><span class="tag core">Django</span><span class="tag">Python</span><span
+                            class="tag">PostgreSQL</span><span class="tag">Git</span></div>
+                </article>
+
+                <article class="project reveal">
+                    <div class="p-top">
+                        <span class="p-label">// software testing · Java</span>
+                        <div class="p-links"><a href="https://github.com/Alii-Awada/Robot-Motion-Simulator"
+                                target="_blank" rel="noopener">code ↗</a></div>
+                    </div>
+                    <h3>Robot Motion Simulator</h3>
+                    <p>Team project for COEN 6761 at Concordia: a command-driven robot on an N × N grid with movement,
+                        rotation, pen up/down drawing and history replay, covered by JUnit 5 tests.</p>
+                    <div class="flow">command → <b>parse</b> → move / rotate / draw → print grid → replay</div>
+                    <div class="tags"><span class="tag core">Java 17</span><span class="tag">Maven</span><span
+                            class="tag">JUnit 5</span></div>
+                </article>
+
+            </div>
+            <p class="reveal" style="text-align:center;margin-top:34px;">
+                <a href="https://github.com/Alii-Awada" target="_blank" rel="noopener" class="btn btn-ghost">See
+                    everything on GitHub ↗</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- ================= RESUME ================= -->
+    <section id="resume">
+        <div class="wrap">
+            <div class="sec-head reveal"><span class="num">04.</span>
+                <h2>Resume</h2><span class="rule"></span>
+            </div>
+            <div class="resume-grid">
+                <div>
+                    <div class="col-title reveal">Experience</div>
+                    <div class="timeline">
+                        <div class="tl-item reveal">
+                            <div class="tl-date">Oct 2026</div>
+                            <h3>Spam Message Detector</h3>
+                            <div class="tl-org">Independent Project · Sole developer ·</div>
+                            <ul>
+                                <li>Built an SMS spam classifier (TF-IDF + Logistic Regression) reaching 97.58%
+                                    accuracy and 89.3% spam recall on ~5,200 messages, handling class imbalance with
+                                    class weighting and threshold tuning.</li>
+                                <li>Deployed it as an interactive Streamlit app with real-time predictions,
+                                    word-level explanations and batch CSV classification.</li>
+                            </ul>
+                        </div>
+                        <!--- <div class="tl-item reveal">
+                            <div class="tl-date">Mar 2026 — Present</div>
+                            <h3>AI Security Automation Engineer</h3>
+                            <div class="tl-org">Independent Projects</div>
+                            <ul>
+                                <li>Built AI-powered automation workflows in n8n integrated with Claude AI through MCP.
+                                </li>
+                                <li>Built an LLM-based spam message detector for automated threat assessment.</li>
+                                <li>Built an IP reputation checker integrating the VirusTotal and AbuseIPDB APIs.</li>
+                                <li>Validated AI outputs through human review, with privacy, security and responsible-AI
+                                    practices in mind.</li>
+                            </ul>
+                        </div> -->
+                        <div class="tl-item reveal">
+                            <div class="tl-date">Jan 2026 — Apr 2026</div>
+                            <h3>Research Associate, Human Activity Recognition</h3>
+                            <div class="tl-org">Concordia University · Sole developer · <a
+                                    href="lightweight-hart.html">case study →</a></div>
+                            <ul>
+                                <li>Developed transformer-based deep learning models for human activity recognition
+                                    on
+                                    PAMAP2.</li>
+                                <li>Raised weighted F1 from 84.6% to 88.5% and optimized the architecture for
+                                    embedded
+                                    deployment.</li>
+                                <li>Applied model compression (knowledge distillation) to shrink the model 1.18×.
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tl-item reveal">
+                            <div class="tl-date">Jan 2025 — Apr 2025</div>
+                            <h3>Backend Developer</h3>
+                            <div class="tl-org">Concordia University</div>
+                            <ul>
+                                <li>Developed backend services with Python and Django, on a PostgreSQL relational
+                                    database.</li>
+                                <li>Integrated AI chatbot capabilities into a web application.</li>
+                                <li>Applied Git, object-oriented programming and design patterns in a
+                                    multidisciplinary
+                                    team.</li>
+                            </ul>
+                        </div>
+                        <div class="tl-item reveal">
+                            <div class="tl-date">Mar 2023 — Aug 2023</div>
+                            <h3>IT Support Technician</h3>
+                            <div class="tl-org">Online Money Transfer (OMT) · Lebanon</div>
+                            <ul>
+                                <li>Delivered Tier 1 support for hardware and software issues; installed and
+                                    maintained
+                                    Windows workstations.</li>
+                                <li>Diagnosed hardware failures, supported local network infrastructure, and kept
+                                    the
+                                    business running.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="col-title reveal">Education</div>
+                    <div class="cert reveal"><b>Master of Engineering, Electrical &amp; Computer Engineering
+                            (Co-op)</b><span>Concordia
+                            University, Montréal · 2024 — 2026<br />AI &amp; ML · Software programming · Networking
+                            &amp;
+                            Cybersecurity</span></div>
+                    <div class="cert reveal"><b>B.Sc., Computer &amp; Communication Engineering</b><span>Lebanese
+                            International
+                            University, Beirut · 2019 — 2022<br />GPA 3.24 / 4.00, with honors</span></div>
+
+                    <div class="col-title reveal" style="margin-top:34px;">Languages</div>
+                    <div class="tags reveal"><span class="tag">Arabic — Native</span><span class="tag">English —
+                            Fluent</span><span class="tag">French — Intermediate</span></div>
+
+                    <div style="margin-top:34px;" class="reveal">
+                        <a href="Ali Awada's Resume.pdf" class="btn btn-primary" download>↓ Download full CV (PDF)</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= CONTACT ================= -->
+    <section id="contact">
+        <div class="wrap">
+            <div class="contact-box reveal">
+                <div class="status"><span class="pulse"></span> currently accepting interviews</div>
+                <h2>Let's build AI together.</h2>
+                <p>I'm actively looking for AI engineer roles. Whether you're hiring, have a project in mind, or
+                    just want to talk AI — my inbox is open. I usually reply within 24 hours.</p>
+
+                <div class="contacts">
+                    <a class="c-card" href="mailto:aliawada438@gmail.com" data-copy="aliawada438@gmail.com">
+                        <div class="c-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="5" width="18" height="14" rx="2" />
+                                <path d="m3 7 9 6 9-6" />
+                            </svg></div>
+                        <div><small>email</small><span>aliawada438@gmail.com</span></div>
+                    </a>
+                    <a class="c-card" href="https://www.linkedin.com/in/aliiawada" target="_blank" rel="noopener">
+                        <div class="c-ico"><svg viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05C20.6 8.65 21 11.2 21 14.5V21h-4v-5.8c0-1.4 0-3.2-1.95-3.2S12.8 13.5 12.8 15.1V21H9z" />
+                            </svg></div>
+                        <div><small>linkedin</small><span>/in/aliiawada</span></div>
+                    </a>
+                    <a class="c-card" href="https://github.com/Alii-Awada" target="_blank" rel="noopener">
+                        <div class="c-ico"><svg viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.1-1.47-1.1-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z" />
+                            </svg></div>
+                        <div><small>github</small><span>@Alii-Awada</span></div>
+                    </a>
+                    <a class="c-card" href="tel:+15149458550">
+                        <div class="c-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z" />
+                            </svg></div>
+                        <div><small>phone</small><span>+1 514 945-8550</span></div>
+                    </a>
+                </div>
+                <div class="copy-note" id="copyNote"></div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="wrap">
+            <span>© <span id="year"></span> Ali Awada · Built by hand</span>
+            <span class="mono">agent.status = "open_to_work"</span>
+        </div>
+    </footer>
+
+    <script>
+        // ----- Animated agent trace (ReAct-style) -----
+        const steps = [
+            ["t-thought", "Thought: Team needs an AI engineer who can ship generative AI."],
+            ["t-action", "Action: search_candidates(skills=['python','llms','ai_agents','mcp'])"],
+            ["t-obs", "Observation: 1 strong match → Ali Awada"],
+            ["t-thought", "Thought: Verify hands-on experience."],
+            ["t-action", "Action: inspect_portfolio('Ali Awada')"],
+            ["t-obs", "Observation: Claude + MCP automations ✓  HAR transformer ✓  Django backend ✓"],
+            ["t-action", "Action: check_availability()"],
+            ["t-obs", "Observation: status=open_to_work, start=immediately"],
+            ["t-final", "Final Answer: Schedule an interview → scroll to #contact"]
+        ];
+        const trace = document.getElementById("trace");
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        function renderAll() {
+            trace.innerHTML = steps.map(([c, t]) => `<div class="${c}">${t}</div>`).join("");
+        }
+        async function typeTrace() {
+            while (true) {
+                trace.innerHTML = "";
+                for (const [cls, text] of steps) {
+                    const line = document.createElement("div");
+                    line.className = cls;
+                    trace.appendChild(line);
+                    const caret = document.createElement("span");
+                    caret.className = "caret";
+                    for (let i = 0; i <= text.length; i++) {
+                        line.textContent = text.slice(0, i);
+                        line.appendChild(caret);
+                        await new Promise(r => setTimeout(r, 16));
+                    }
+                    caret.remove();
+                    await new Promise(r => setTimeout(r, 380));
+                }
+                await new Promise(r => setTimeout(r, 4000));
+            }
+        }
+        reduce ? renderAll() : typeTrace();
+
+        // ----- Reveal on scroll -----
+        const io = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+        }, { threshold: 0.12 });
+        document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+        // ----- Mobile menu -----
+        const burger = document.getElementById("burger");
+        const links = document.getElementById("navLinks");
+        burger.addEventListener("click", () => {
+            const open = links.classList.toggle("open");
+            burger.setAttribute("aria-expanded", open);
+        });
+        links.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
+            links.classList.remove("open");
+            burger.setAttribute("aria-expanded", "false");
+        }));
+
+        // ----- Copy email on click (still opens mail client) -----
+        document.querySelectorAll("[data-copy]").forEach(el => {
+            el.addEventListener("click", () => {
+                if (!navigator.clipboard) return;
+                navigator.clipboard.writeText(el.dataset.copy).then(() => {
+                    const note = document.getElementById("copyNote");
+                    note.textContent = "✓ email copied to clipboard";
+                    setTimeout(() => note.textContent = "", 2500);
+                }).catch(() => { });
+            });
+        });
+
+        document.getElementById("year").textContent = new Date().getFullYear();
+
+        // ----- Moving neural-network background -----
+        (function () {
+            const cvs = document.getElementById("neural");
+            const ctx = cvs.getContext("2d");
+            const SKY = "56,189,248", DEEP = "2,132,199", GRAY = "100,116,139";
+            let W, H, dpr, nodes = [], pulses = [], mouse = { x: -999, y: -999 };
+
+            function resize() {
+                dpr = Math.min(window.devicePixelRatio || 1, 2);
+                W = window.innerWidth; H = window.innerHeight;
+                cvs.width = W * dpr; cvs.height = H * dpr;
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                const count = Math.round(Math.min(90, Math.max(35, (W * H) / 16000)));
+                nodes = Array.from({ length: count }, () => ({
+                    x: Math.random() * W, y: Math.random() * H,
+                    vx: (Math.random() - .5) * .35, vy: (Math.random() - .5) * .35,
+                    r: Math.random() * 2 + 1.4,
+                    hub: Math.random() < .12            // a few bigger "neuron" hubs
+                }));
+            }
+
+            const LINK = () => Math.min(170, W / 7);
+
+            function spawnPulse() {
+                const a = nodes[Math.floor(Math.random() * nodes.length)];
+                let best = null, bd = Infinity;
+                for (const b of nodes) {
+                    if (b === a) continue;
+                    const d = Math.hypot(a.x - b.x, a.y - b.y);
+                    if (d < LINK() && d < bd && Math.random() > .3) { bd = d; best = b; }
+                }
+                if (best) pulses.push({ a, b: best, t: 0 });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, W, H);
+                const L = LINK();
+
+                // edges
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        const a = nodes[i], b = nodes[j];
+                        const d = Math.hypot(a.x - b.x, a.y - b.y);
+                        if (d < L) {
+                            const alpha = (1 - d / L) * .35;
+                            ctx.strokeStyle = `rgba(${(i + j) % 3 ? SKY : GRAY},${alpha})`;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+                        }
+                    }
+                    // link to the cursor
+                    const n = nodes[i], dm = Math.hypot(n.x - mouse.x, n.y - mouse.y);
+                    if (dm < L * 1.2) {
+                        ctx.strokeStyle = `rgba(${DEEP},${(1 - dm / (L * 1.2)) * .5})`;
+                        ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
+                    }
+                }
+
+                // signals travelling along edges
+                pulses = pulses.filter(p => p.t <= 1);
+                for (const p of pulses) {
+                    p.t += .018;
+                    const x = p.a.x + (p.b.x - p.a.x) * p.t, y = p.a.y + (p.b.y - p.a.y) * p.t;
+                    const g = ctx.createRadialGradient(x, y, 0, x, y, 9);
+                    g.addColorStop(0, `rgba(${DEEP},.9)`); g.addColorStop(1, `rgba(${SKY},0)`);
+                    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI * 2); ctx.fill();
+                }
+
+                // nodes
+                for (const n of nodes) {
+                    if (n.hub) {
+                        ctx.fillStyle = `rgba(${SKY},.15)`;
+                        ctx.beginPath(); ctx.arc(n.x, n.y, n.r * 4, 0, Math.PI * 2); ctx.fill();
+                    }
+                    ctx.fillStyle = n.hub ? `rgba(${DEEP},.85)` : `rgba(${SKY},.7)`;
+                    ctx.beginPath(); ctx.arc(n.x, n.y, n.hub ? n.r * 1.6 : n.r, 0, Math.PI * 2); ctx.fill();
+                }
+            }
+
+            function step() {
+                for (const n of nodes) {
+                    n.x += n.vx; n.y += n.vy;
+                    if (n.x < -20) n.x = W + 20; else if (n.x > W + 20) n.x = -20;
+                    if (n.y < -20) n.y = H + 20; else if (n.y > H + 20) n.y = -20;
+                }
+                if (Math.random() < .06 && pulses.length < 14) spawnPulse();
+                draw();
+                requestAnimationFrame(step);
+            }
+
+            window.addEventListener("resize", resize);
+            window.addEventListener("mousemove", e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+            window.addEventListener("mouseleave", () => { mouse.x = mouse.y = -999; });
+
+            resize();
+            reduce ? draw() : step();
+        })();
+    </script>
+</body>
+
+</html>
