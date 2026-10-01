@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lightweight HART — Ali Awada</title>
+<meta name="description" content="Case study: a lightweight transformer for human activity recognition, tuned to 88.5% weighted F1 and compressed with knowledge distillation for an NVIDIA Jetson Orin Nano. By Ali Awada, Concordia University.">
+<meta name="author" content="Ali Awada">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lightweight HART: activity recognition on the edge">
+<meta property="og:description" content="Transformer HAR model: 84.6% → 88.5% weighted F1, distilled 1.18× smaller for NVIDIA Jetson.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230284c7'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='16' text-anchor='middle' fill='white'%3EA_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: matches Ali's portfolio — sticky mono nav, two-column hero with a terminal panel, numbered sections with rules */
+:root{
+  --bg:#ffffff; --bg-2:#f1f4f7; --card:#f8fafc; --line:#e2e8f0;
+  --text:#1e293b; --muted:#64748b;
+  --accent:#0284c7; --accent-2:#38bdf8; --warn:#0369a1;
+  --term:#2a323d; --term-bar:#323b47; --term-line:#3b4553; --term-text:#e5e9ef; --term-muted:#aab4c2;
+  --radius:14px;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --sans:"Space Grotesk", system-ui, "Segoe UI", sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:28px 28px;
+  -webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 30%,transparent 75%);mask-image:radial-gradient(ellipse at 50% 0%,#000 30%,transparent 75%);pointer-events:none;z-index:-1}
+body::after{content:"";position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 70% -10%,rgba(56,189,248,.18),transparent 70%);pointer-events:none;z-index:-1}
+#neural{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;opacity:.55}
+a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.wrap{max-width:1100px;margin:0 auto;padding-inline:24px}
+.mono{font-family:var(--mono)}
+.tn{font-variant-numeric:tabular-nums}
+
+/* nav */
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background:rgba(255,255,255,.82);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.logo{font-family:var(--mono);font-weight:500;font-size:15px;white-space:nowrap}
+.logo span{color:var(--accent)}
+.nav-links{display:flex;gap:28px;font-size:14px;color:var(--muted)}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{font-size:13px;font-family:var(--mono);padding:8px 14px;border:1px solid var(--accent);color:var(--accent);border-radius:999px;transition:.2s;white-space:nowrap}
+.nav-cta:hover{background:var(--accent);color:var(--bg)}
+
+/* hero */
+.hero{padding-block:80px 56px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.hero > *{min-width:0}
+.status{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:13px;padding:6px 14px 6px 10px;border-radius:999px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.35);color:var(--accent)}
+.pulse{width:9px;height:9px;border-radius:50%;background:var(--accent);position:relative;flex-shrink:0}
+.pulse::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--accent);animation:ping 1.6s infinite}
+@keyframes ping{to{transform:scale(2.6);opacity:0}}
+h1{font-size:clamp(38px,6vw,60px);line-height:1.05;margin:22px 0 18px;letter-spacing:-1.5px;text-wrap:balance}
+.grad{background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--muted);font-size:18px;max-width:540px}
+.lead b{color:var(--text);font-weight:500}
+.hero-actions{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:10px;font-weight:600;font-size:15px;transition:.2s}
+.btn-primary{background:var(--accent);color:var(--bg)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px -10px var(--accent)}
+.btn-ghost{border:1px solid var(--line);background:var(--card)}
+.btn-ghost:hover{border-color:var(--muted)}
+.meta{display:flex;gap:10px 22px;margin-top:30px;font-size:14px;color:var(--muted);flex-wrap:wrap}
+.meta b{color:var(--text);font-weight:500}
+
+/* terminal with sensor scope */
+.terminal{background:var(--term);border:1px solid var(--term-line);border-radius:var(--radius);box-shadow:0 30px 70px -30px rgba(2,132,199,.45);overflow:hidden;color:var(--term-text)}
+.term-bar{display:flex;align-items:center;gap:7px;padding:12px 14px;border-bottom:1px solid var(--term-line);background:var(--term-bar)}
+.term-bar i{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.term-bar i:nth-child(1){background:#ff5f57}.term-bar i:nth-child(2){background:#febc2e}.term-bar i:nth-child(3){background:#28c840}
+.term-bar span{margin-left:10px;font-family:var(--mono);font-size:12px;color:var(--term-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.term-body{font-family:var(--mono);font-size:12.5px;padding:16px 18px 18px;display:flex;flex-direction:column;gap:10px}
+.term-body canvas{display:block;width:100%;height:190px}
+.t-legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--term-muted);font-size:11.5px}
+.t-legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.t-out{display:flex;flex-direction:column;gap:2px;border-top:1px dashed var(--term-line);padding-top:10px}
+.t-obs{color:#9aa5b4}.t-action{color:#e0f2fe}.t-final{color:#38bdf8;font-weight:500}
+.caret{display:inline-block;width:8px;height:14px;background:#38bdf8;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.stat strong{font-size:34px;font-weight:700;line-height:1;letter-spacing:-.5px;color:var(--accent);font-variant-numeric:tabular-nums}
+.stat span{font-size:14px;color:var(--muted)}
+
+/* sections */
+section{padding-block:72px 0}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:28px}
+.sec-head .num{font-family:var(--mono);color:var(--accent);font-size:14px}
+.sec-head h2{font-size:32px;letter-spacing:-.5px;line-height:1.15;text-wrap:balance}
+.sec-head .rule{flex:1;height:1px;background:var(--line);min-width:24px}
+.prose{color:var(--muted);font-size:17px;max-width:68ch}
+.prose b{color:var(--text);font-weight:500}
+.stack{display:flex;flex-direction:column;gap:22px}
+
+/* cards & grids */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:10px;transition:.25s;min-width:0}
+.card:hover{border-color:var(--accent-2);transform:translateY(-3px)}
+.card h3{font-size:17px;display:flex;align-items:center;gap:10px}
+.card h3 .ico{font-family:var(--mono);color:var(--accent);font-size:13px}
+.card p{color:var(--muted);font-size:15px}
+.card p b{color:var(--text);font-weight:500}
+.flow{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--bg-2);border:1px dashed var(--line);border-radius:8px;padding:10px 12px;overflow-wrap:anywhere}
+.flow b{color:var(--warn);font-weight:400}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{font-family:var(--mono);font-size:12px;padding:5px 10px;border-radius:6px;background:var(--bg-2);border:1px solid var(--line);color:var(--text)}
+.tag.core{border-color:rgba(56,189,248,.4);color:var(--accent)}
+
+.grid.five{grid-template-columns:repeat(5,1fr);gap:14px}
+.grid.five .card{padding:18px}
+@media (max-width:1000px){.grid.five{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}}
+/* figure */
+figure{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+figcaption{font-size:14px;color:var(--muted);margin-top:12px}
+.figscroll{overflow-x:auto}
+svg text{font-family:var(--mono)}
+
+/* tables */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:520px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);background:var(--bg-2)}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-family:var(--mono);font-size:13.5px;font-variant-numeric:tabular-nums}
+tr.hl td{background:rgba(56,189,248,.08)}
+tr.hl td:first-child{color:var(--accent);font-weight:500}
+.pill{display:inline-block;font-family:var(--mono);font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg-2)}
+.pill.mod{border-color:rgba(56,189,248,.45);color:var(--accent);background:rgba(56,189,248,.08)}
+.pill.vig{border-color:var(--warn);color:var(--bg);background:var(--warn)}
+
+/* checklist */
+.checks{list-style:none;display:flex;flex-direction:column;gap:14px;max-width:72ch}
+.checks li{position:relative;padding-left:30px;color:var(--muted);font-size:16px}
+.checks li::before{content:"✓";position:absolute;left:0;top:0;font-family:var(--mono);color:var(--accent)}
+.checks b{color:var(--text);font-weight:500}
+
+.formula{font-family:var(--mono);font-size:15px;color:var(--text)}
+
+/* closing box */
+.contact-box{background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(14,165,233,.1));border:1px solid var(--line);border-radius:22px;padding:48px 40px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px}
+.contact-box h2{font-size:clamp(26px,4vw,38px);letter-spacing:-1px;text-wrap:balance}
+.contact-box p{color:var(--muted);max-width:560px}
+
+footer{border-top:1px solid var(--line);padding-block:28px;font-size:13px;color:var(--muted);margin-top:72px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media (max-width:900px){.hero{grid-template-columns:1fr;padding-top:48px}.stats{grid-template-columns:1fr 1fr}}
+@media (max-width:720px){
+  .wrap{padding-inline:16px}
+  .nav-links{display:none}
+  section{padding-top:56px}
+  .sec-head h2{font-size:26px}
+  .contact-box{padding:36px 18px}
+}
+@media (max-width:420px){.stats{grid-template-columns:1fr}.logo{font-size:13px}.nav-cta{font-size:12px;padding:7px 11px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+img{max-width:100%}
+</style>
+</head>
+<body>
+
+<canvas id="neural" aria-hidden="true"></canvas>
+
+<nav>
+  <div class="wrap">
+    <a href="index.html" class="logo" title="Back to portfolio">~/ali-awada/hart<span>_</span></a>
+    <div class="nav-links">
+      <a href="index.html">← Portfolio</a>
+      <a href="#problem">Problem</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#results">Results</a>
+      <a href="#compression">Compression</a>
+      <a href="#next">Next</a>
+    </div>
+    <a href="https://github.com/Alii-Awada/Lightweight-HART-Transformer" target="_blank" rel="noopener" class="nav-cta">view_code()</a>
+  </div>
+</nav>
+
+<header id="top" class="wrap hero">
+  <div>
+    <div class="status"><span class="pulse"></span> project: edge_ml · human_activity_recognition</div>
+    <h1>Lightweight <span class="grad">HART</span>: activity recognition on the edge.</h1>
+    <p class="lead">A transformer that reads <b>1.28 seconds of wrist motion</b>, names the activity, and maps it to <b>WHO intensity levels</b>. I tuned it from 84.6% to 88.5% weighted F1, then compressed it with knowledge distillation, targeting an NVIDIA Jetson Orin Nano.</p>
+    <div class="hero-actions">
+      <a href="#results" class="btn btn-primary">See the results →</a>
+      <a href="https://github.com/Alii-Awada/Lightweight-HART-Transformer" target="_blank" rel="noopener" class="btn btn-ghost">Code on GitHub ↗</a>
+    </div>
+    <div class="meta">
+      <div><b>Sole developer</b> · Winter 2026</div>
+      <div><b>Concordia University</b> · ENGR 6971</div>
+      <div>Supervised by <b>Dr. Ahmed Bali</b> &amp; <b>Dr. Paula Lago</b></div>
+    </div>
+  </div>
+
+  <div class="terminal" aria-label="Illustration of one model input window and its prediction">
+    <div class="term-bar"><i></i><i></i><i></i><span>hart.predict(window)  # 128 samples × 6 channels</span></div>
+    <div class="term-body">
+      <div class="t-legend"><span><i style="background:#38bdf8"></i>accel x/y/z</span><span><i style="background:#cbd5e1"></i>gyro x/y/z</span><span>8 tokens × 16 samples · illustrative</span></div>
+      <canvas id="scope" role="img" aria-label="Six sensor traces split into eight tokens"></canvas>
+      <div class="t-out" id="trace">
+        <div class="t-action">→ tokens: 8 × 192-dim · blocks: 6</div>
+        <div class="t-obs">→ activity: walking   (MET 3.5)</div>
+        <div class="t-final">→ intensity: MODERATE · +0.64 s toward WHO weekly target</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="stats">
+    <div class="stat"><strong>88.5%</strong><span>best weighted F1 on the held-out test fold</span></div>
+    <div class="stat"><strong>+3.9 pt</strong><span>F1 gained over the first baseline</span></div>
+    <div class="stat"><strong>1.18×</strong><span>smaller after distillation (9.14 → 7.73 MB)</span></div>
+    <div class="stat"><strong>640 ms</strong><span>target real-time budget per inference</span></div>
+  </div>
+</div>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">01.</span><h2>Step counts miss intensity</h2><span class="rule"></span></div>
+    <div class="stack">
+      <p class="prose">Most wearables count steps. A slow stroll and a brisk walk can produce the same count but have very different health value. The WHO guideline is written in intensity terms: <b>150 minutes of moderate or 75 minutes of vigorous activity per week</b>. I wanted a model that recognises the activity itself, runs on the device so raw motion data stays private, and reports minutes in the units the guideline uses.</p>
+    </div>
+  </div>
+</section>
+
+<section id="pipeline">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">02.</span><h2>From raw sensor logs to an edge model</h2><span class="rule"></span></div>
+    <div class="grid five">
+      <div class="card"><h3><span class="ico">1</span> Preprocess</h3><p>Split recordings at gaps over 25 ms, cut 128-sample windows with 50% overlap, normalise each subject with stats from the other eight.</p><div class="flow"><b>DATA_PAMAP2.py</b></div></div>
+      <div class="card"><h3><span class="ico">2</span> Train</h3><p>AdamW, warmup + cosine LR, EMA weights, stochastic depth, label smoothing, online Gaussian jitter.</p><div class="flow"><b>main.py</b></div></div>
+      <div class="card"><h3><span class="ico">3</span> Compress</h3><p>Five cycles of narrower dense students, each distilled from the previous model.</p><div class="flow"><b>prune_distill.py</b></div></div>
+      <div class="card"><h3><span class="ico">4</span> Track</h3><p>Accuracy, F1, size, FLOPs and parameters logged per run to a CSV with comparison plots.</p><div class="flow"><b>prune_tracking.py</b></div></div>
+      <div class="card"><h3><span class="ico">5</span> Deploy</h3><p>Float32 and INT8 TFLite export, plus mean and P95 latency checks against the 640 ms budget.</p><div class="flow"><b>benchmark_jetson.py</b></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="architecture">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">03.</span><h2>Separate attention for each sensor</h2><span class="rule"></span></div>
+    <div class="stack">
+      <p class="prose">HART (Ek et al., 2023) gives the accelerometer and gyroscope their own attention heads, then mixes them with a lightweight depthwise-convolution branch and a global attention pass. I added a <b>multi-scale convolutional tokenizer</b>, which produced the largest single accuracy gain.</p>
+      <figure>
+        <div class="figscroll">
+        <svg viewBox="0 0 900 250" width="100%" style="min-width:640px" role="img" aria-label="HART block diagram">
+          <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker></defs>
+          <g font-size="12" fill="#1e293b">
+            <rect x="10" y="95" width="110" height="60" rx="8" fill="#f1f4f7" stroke="#e2e8f0"/>
+            <text x="65" y="120" text-anchor="middle">Input</text><text x="65" y="138" text-anchor="middle" fill="#64748b">128 × 6</text>
+            <rect x="150" y="95" width="130" height="60" rx="8" fill="#f1f4f7" stroke="#e2e8f0"/>
+            <text x="215" y="120" text-anchor="middle">Multi-scale</text><text x="215" y="138" text-anchor="middle">tokenizer</text>
+            <rect x="315" y="20" width="370" height="210" rx="12" fill="rgba(56,189,248,.05)" stroke="#38bdf8" stroke-dasharray="4 4"/>
+            <text x="327" y="40" fill="#0284c7">HART block × 6 · kernels 3, 7, 15, 31, 31, 31</text>
+            <rect x="335" y="60" width="150" height="40" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+            <text x="410" y="85" text-anchor="middle" fill="#0284c7">Accel MHA</text>
+            <rect x="335" y="110" width="150" height="40" rx="6" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+            <text x="410" y="135" text-anchor="middle">LiteFormer (dw-conv)</text>
+            <rect x="335" y="160" width="150" height="40" rx="6" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+            <text x="410" y="185" text-anchor="middle" fill="#475569">Gyro MHA</text>
+            <rect x="520" y="95" width="145" height="60" rx="6" fill="#ffffff" stroke="#1e293b"/>
+            <text x="592" y="120" text-anchor="middle">Global MHA</text><text x="592" y="138" text-anchor="middle" fill="#64748b">+ MLP, DropPath</text>
+            <rect x="715" y="95" width="80" height="60" rx="8" fill="#f1f4f7" stroke="#e2e8f0"/>
+            <text x="755" y="120" text-anchor="middle">Pool</text><text x="755" y="138" text-anchor="middle">+ head</text>
+            <rect x="815" y="80" width="78" height="90" rx="8" fill="#0284c7"/>
+            <text x="854" y="108" text-anchor="middle" fill="#ffffff">9 acts</text><text x="854" y="128" text-anchor="middle" fill="#e0f2fe">↓ MET</text><text x="854" y="150" text-anchor="middle" fill="#ffffff">3 tiers</text>
+          </g>
+          <g stroke="#94a3b8" stroke-width="1.4" fill="none" marker-end="url(#ar)">
+            <path d="M120 125 H146"/><path d="M280 125 H330"/>
+            <path d="M310 125 V80 H331"/><path d="M310 125 V180 H331"/>
+            <path d="M485 80 H502 V115 H516"/><path d="M485 130 H516"/><path d="M485 180 H502 V140 H516"/>
+            <path d="M665 125 H711"/><path d="M795 125 H811"/>
+          </g>
+        </svg>
+        </div>
+        <figcaption>Each block splits the token embedding into accelerometer, convolution and gyroscope channels, then recombines them. About 2.4 M parameters and 36 M FLOPs at projection dim 192.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">04.</span><h2>84.6% to 88.5% weighted F1</h2><span class="rule"></span></div>
+    <div class="stack">
+      <p class="prose">Every run was scored on the same held-out test fold (20% per subject, never used for model selection). The biggest gains came from the <b>multi-scale tokenizer</b>, a <b>lower peak learning rate</b> (5e-4) and a <b>slower EMA decay</b> (0.9999).</p>
+      <figure>
+        <div class="figscroll"><svg id="chart" viewBox="0 0 860 300" width="100%" style="min-width:600px" role="img" aria-label="Weighted F1 by training run"></svg></div>
+        <figcaption>Weighted F1 on the test fold for each logged run. Repeats of the same config varied by about 1.5 points, so I report the final run (87.0%) alongside the best (88.5%).</figcaption>
+      </figure>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Model</th><th class="num">Weighted F1</th><th class="num">Macro F1</th><th class="num">Size</th><th class="num">Proj dim</th></tr></thead>
+          <tbody>
+            <tr><td>Base HART (final run)</td><td class="num">87.04%</td><td class="num">86.48%</td><td class="num">9.14 MB</td><td class="num">192</td></tr>
+            <tr class="hl"><td>Distilled student, cycle 1</td><td class="num">86.64%</td><td class="num">86.81%</td><td class="num">7.73 MB</td><td class="num">176</td></tr>
+            <tr><td>Float32 TFLite</td><td class="num" colspan="2">≈ 87.3% accuracy</td><td class="num">—</td><td class="num">192</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="compression">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">05.</span><h2>Smaller dense models, not sparse ones</h2><span class="rule"></span></div>
+    <div class="stack">
+      <p class="prose">Unstructured pruning leaves irregular sparsity that edge hardware can't exploit. Instead, each cycle builds a narrower dense HART and trains it against the previous model's softened outputs. The best cycle is chosen on <b>validation accuracy only</b>.</p>
+      <div class="grid">
+        <div class="card">
+          <h3><span class="ico">∑</span> Distillation loss</h3>
+          <p class="formula">L = CE(y, s) + 0.5 · T² · KL(t<sub>T</sub> ‖ s<sub>T</sub>)</p>
+          <p>Temperature T = 2.0. Each student becomes the next cycle's teacher.</p>
+          <div class="flow">192 → <b>176</b> → 160 → 128 → 112 → 96</div>
+        </div>
+        <div class="card">
+          <h3><span class="ico">◎</span> Outcome</h3>
+          <p>Cycle 1 (dim 176) reached <b>88.44% validation accuracy</b>, above its 87.30% teacher, at 15% less storage.</p>
+          <p>Deeper cycles lost 2 to 8 validation points with only 10 epochs each. Longer schedules per cycle are the next experiment.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="output">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">06.</span><h2>Activities become WHO minutes</h2><span class="rule"></span></div>
+    <div class="stack">
+      <p class="prose">Each prediction is mapped to a MET value and a WHO tier. Windows advance every 0.64 s, so the system can total <b>moderate-equivalent minutes</b> (vigorous counts double) against the 150-minute weekly target.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Activity</th><th class="num">MET</th><th>WHO tier</th></tr></thead>
+          <tbody>
+            <tr><td>Lying · Sitting · Standing</td><td class="num">1.0 – 1.5</td><td><span class="pill">Light · &lt; 3.0</span></td></tr>
+            <tr><td>Walking · Descending stairs · Ascending stairs · Nordic walking</td><td class="num">3.5 – 4.8</td><td><span class="pill mod">Moderate · 3.0–5.9</span></td></tr>
+            <tr><td>Cycling · Running</td><td class="num">6.0 – 8.0</td><td><span class="pill vig">Vigorous · ≥ 6.0</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="engineering">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">07.</span><h2>Making the results trustworthy</h2><span class="rule"></span></div>
+    <ul class="checks">
+      <li><b>Fixed test-set leakage.</b> The original compression script picked its best cycle using test accuracy. I moved selection to a validation split so the reported test numbers stay unbiased.</li>
+      <li><b>Fixed 21 bugs across five files</b>, including DropPath never being applied, a swapped confusion-matrix axis, a 10-vs-18 class-count mismatch, and NaN values slipping through metric logging.</li>
+      <li><b>Stopped leakage between subjects</b> by normalising each subject with statistics from the other eight.</li>
+      <li><b>Made runs reproducible</b> with JSON configs, fixed seeds, and a metadata file per run that records hyperparameters, library versions and dataset checksums.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="next">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">08.</span><h2>Open problems</h2><span class="rule"></span></div>
+    <div class="grid">
+      <div class="card"><h3><span class="ico">int8</span> Quantisation</h3><p>Post-training INT8 drops to about 46% accuracy, so calibration is failing. Next: a class-balanced representative set, or quantisation-aware training.</p></div>
+      <div class="card"><h3><span class="ico">&gt;_</span> On-device numbers</h3><p>The Jetson benchmark script is written but hasn't been run on hardware yet. TensorRT FP16 export comes after that.</p></div>
+      <div class="card"><h3><span class="ico">⌬</span> Unseen users</h3><p>The test fold comes from the same nine subjects. Leave-one-subject-out evaluation will measure true cross-user generalisation.</p></div>
+      <div class="card"><h3><span class="ico">±</span> Variance</h3><p>A 1.5-point spread between identical configs means comparisons need multiple seeds and mean ± std reporting.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">09.</span><h2>Tech stack</h2><span class="rule"></span></div>
+    <div class="tags">
+      <span class="tag core">Python</span><span class="tag core">TensorFlow / Keras</span><span class="tag core">TensorFlow Lite</span><span class="tag">Transformers</span><span class="tag">Knowledge distillation</span><span class="tag">Quantisation</span><span class="tag">scikit-learn</span><span class="tag">NumPy</span><span class="tag">pandas</span><span class="tag">NVIDIA Jetson Orin Nano</span><span class="tag">PAMAP2</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="contact-box">
+      <div class="status"><span class="pulse"></span> full code, configs and results</div>
+      <h2>Explore the repository.</h2>
+      <p>Training scripts, compression pipeline, evaluation tools and run logs are all on GitHub, with a step-by-step README for reproducing every number on this page.</p>
+      <div class="hero-actions" style="justify-content:center;margin-top:6px">
+        <a href="https://github.com/Alii-Awada/Lightweight-HART-Transformer" target="_blank" rel="noopener" class="btn btn-primary">View the repository ↗</a>
+        <a href="index.html#contact" class="btn btn-ghost">Contact me</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span><a href="index.html">Ali Awada</a> · ENGR 6971 Project and Report I · Concordia University, Winter 2026</span>
+    <span class="mono">model.status = "edge_benchmarking"</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Hero scope: illustrative 6-channel IMU window */
+  const cv = document.getElementById('scope');
+  function drawScope(){
+    const dpr = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+    if(!w) return;
+    cv.width = w*dpr; cv.height = h*dpr;
+    const c = cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,w,h);
+    for(let t=0;t<=8;t++){ const x=Math.round(t*w/8)+.5; c.strokeStyle='#3b4553'; c.lineWidth=1; c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
+    c.fillStyle='#aab4c2'; c.font='10px "JetBrains Mono", monospace';
+    for(let t=0;t<8;t++) c.fillText('t'+(t+1), t*w/8+5, 12);
+    const N=128, chans=[
+      {col:'#38bdf8',a:.9,f:2,p:0,y:.34},{col:'#38bdf8',a:.55,f:4,p:1.2,y:.34},{col:'#38bdf8',a:.35,f:2,p:2.4,y:.34},
+      {col:'#cbd5e1',a:.8,f:2,p:.8,y:.76},{col:'#cbd5e1',a:.45,f:1,p:2,y:.76},{col:'#cbd5e1',a:.3,f:4,p:3.1,y:.76}];
+    chans.forEach((ch,i)=>{
+      c.strokeStyle=ch.col; c.globalAlpha=i%3===0?1:.5; c.lineWidth=i%3===0?1.8:1.1;
+      c.beginPath();
+      for(let k=0;k<N;k++){
+        const s=k/N*Math.PI*2;
+        const v=ch.a*Math.sin(ch.f*s*2+ch.p)+.25*ch.a*Math.sin(ch.f*s*5+ch.p*2)+.08*Math.sin(k*1.7+i);
+        const x=k/(N-1)*w, y=h*ch.y-v*h*.13;
+        k?c.lineTo(x,y):c.moveTo(x,y);
+      }
+      c.stroke();
+    });
+    c.globalAlpha=1;
+  }
+
+  /* Results chart */
+  const runs=[
+    {d:'Feb 11',l:'baseline',v:84.62},{d:'Mar 3',l:'LR 1e-3',v:84.96},{d:'Mar 10',l:'+ tokenizer',v:85.41},
+    {d:'Mar 10',l:'LR 5e-4',v:87.51},{d:'Mar 16',l:'best run',v:88.54,best:true},{d:'Mar 26',l:'final base',v:87.04},
+    {d:'Apr 1',l:'student',v:86.64,student:true}];
+  (function(){
+    const svg=document.getElementById('chart'),W=860,H=300,L=48,R=16,T=28,B=60,lo=83,hi=89;
+    const y=v=>T+(hi-v)/(hi-lo)*(H-T-B), bw=(W-L-R)/runs.length; let s='';
+    for(let g=lo;g<=hi;g++) s+=`<line x1="${L}" x2="${W-R}" y1="${y(g)}" y2="${y(g)}" stroke="#e2e8f0"/><text x="${L-8}" y="${y(g)+4}" text-anchor="end" font-size="11" fill="#64748b">${g}%</text>`;
+    runs.forEach((r,i)=>{
+      const x=L+i*bw+bw*.2,w=bw*.6,col=r.best?'#0284c7':r.student?'#38bdf8':'#cbd5e1';
+      s+=`<rect x="${x}" y="${y(r.v)}" width="${w}" height="${y(lo)-y(r.v)}" rx="4" fill="${col}"/>`;
+      s+=`<text x="${x+w/2}" y="${y(r.v)-7}" text-anchor="middle" font-size="12" fill="${r.best?'#0284c7':'#1e293b'}" font-weight="${r.best?600:400}">${r.v.toFixed(1)}</text>`;
+      s+=`<text x="${x+w/2}" y="${H-B+18}" text-anchor="middle" font-size="11" fill="#1e293b">${r.d}</text>`;
+      s+=`<text x="${x+w/2}" y="${H-B+34}" text-anchor="middle" font-size="10.5" fill="#64748b">${r.l}</text>`;
+    });
+    s+=`<text x="${L}" y="14" font-size="11" fill="#64748b">Weighted F1 (%) · axis starts at 83%</text>`;
+    svg.innerHTML=s;
+  })();
+
+  /* Typed prediction lines (static when reduced motion) */
+  const trace=document.getElementById('trace');
+  const lines=[...trace.children].map(d=>[d.className,d.textContent]);
+  async function typeTrace(){
+    const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+    while(true){
+      await sleep(3500);
+      trace.innerHTML='';
+      for(const [cls,text] of lines){
+        const el=document.createElement('div'); el.className=cls; trace.appendChild(el);
+        const caret=document.createElement('span'); caret.className='caret';
+        for(let i=0;i<=text.length;i++){ el.textContent=text.slice(0,i); el.appendChild(caret); await sleep(18); }
+        caret.remove(); await sleep(350);
+      }
+    }
+  }
+  if(!reduce) typeTrace();
+
+  /* Neural-network background (from the portfolio) */
+  (function(){
+    const cvs=document.getElementById('neural'), ctx=cvs.getContext('2d');
+    const SKY='56,189,248', DEEP='2,132,199', GRAY='100,116,139';
+    let W,H,nodes=[],pulses=[],mouse={x:-999,y:-999};
+    function resize(){
+      const dpr=Math.min(devicePixelRatio||1,2); W=innerWidth; H=innerHeight;
+      cvs.width=W*dpr; cvs.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+      const n=Math.round(Math.min(80,Math.max(30,W*H/18000)));
+      nodes=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*2+1.4,hub:Math.random()<.12}));
+    }
+    const LINK=()=>Math.min(170,W/7);
+    function spawn(){ const a=nodes[Math.floor(Math.random()*nodes.length)]; let best=null,bd=1e9;
+      for(const b of nodes){ if(b===a) continue; const d=Math.hypot(a.x-b.x,a.y-b.y); if(d<LINK()&&d<bd&&Math.random()>.3){bd=d;best=b;} }
+      if(best) pulses.push({a,b:best,t:0}); }
+    function draw(){
+      ctx.clearRect(0,0,W,H); const L=LINK();
+      for(let i=0;i<nodes.length;i++){
+        for(let j=i+1;j<nodes.length;j++){ const a=nodes[i],b=nodes[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+          if(d<L){ ctx.strokeStyle=`rgba(${(i+j)%3?SKY:GRAY},${(1-d/L)*.35})`; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); } }
+        const n=nodes[i],dm=Math.hypot(n.x-mouse.x,n.y-mouse.y);
+        if(dm<L*1.2){ ctx.strokeStyle=`rgba(${DEEP},${(1-dm/(L*1.2))*.5})`; ctx.beginPath(); ctx.moveTo(n.x,n.y); ctx.lineTo(mouse.x,mouse.y); ctx.stroke(); }
+      }
+      pulses=pulses.filter(p=>p.t<=1);
+      for(const p of pulses){ p.t+=.018; const x=p.a.x+(p.b.x-p.a.x)*p.t,y=p.a.y+(p.b.y-p.a.y)*p.t;
+        const g=ctx.createRadialGradient(x,y,0,x,y,9); g.addColorStop(0,`rgba(${DEEP},.9)`); g.addColorStop(1,`rgba(${SKY},0)`);
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,9,0,Math.PI*2); ctx.fill(); }
+      for(const n of nodes){
+        if(n.hub){ ctx.fillStyle=`rgba(${SKY},.15)`; ctx.beginPath(); ctx.arc(n.x,n.y,n.r*4,0,Math.PI*2); ctx.fill(); }
+        ctx.fillStyle=n.hub?`rgba(${DEEP},.85)`:`rgba(${SKY},.7)`; ctx.beginPath(); ctx.arc(n.x,n.y,n.hub?n.r*1.6:n.r,0,Math.PI*2); ctx.fill();
+      }
+    }
+    function step(){
+      for(const n of nodes){ n.x+=n.vx; n.y+=n.vy;
+        if(n.x<-20)n.x=W+20; else if(n.x>W+20)n.x=-20;
+        if(n.y<-20)n.y=H+20; else if(n.y>H+20)n.y=-20; }
+      if(Math.random()<.06&&pulses.length<14) spawn();
+      draw(); requestAnimationFrame(step);
+    }
+    addEventListener('resize',resize);
+    addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+    addEventListener('mouseleave',()=>{mouse.x=mouse.y=-999;});
+    resize(); reduce?draw():step();
+  })();
+
+  drawScope();
+  addEventListener('resize',drawScope);
+  if(document.fonts) document.fonts.ready.then(drawScope);
+})();
+</script>
+
+</body></html>
